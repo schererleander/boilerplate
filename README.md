@@ -2,6 +2,13 @@
 
 A Next.js application with user authentication, profile management, and file storage capabilities.
 
+## Screenshots
+
+<div align="center">
+  <img src=".github/home.png" alt="Home Page" width="45%" />
+  <img src=".github/settings.png" alt="Settings Page" width="45%" />
+</div>
+
 ## Prerequisites
 
 - Node.js 18+ 
