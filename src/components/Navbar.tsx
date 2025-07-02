@@ -34,7 +34,7 @@ export default function Navbar() {
           <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
             <span className="text-primary-foreground font-bold text-lg">W</span>
           </div>
-          <span className="font-bold text-xl">Widget</span>
+          <span className="font-bold text-xl">Next-Boilerplate</span>
         </Link>
         
         <div className="flex items-center space-x-4">

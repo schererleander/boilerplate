@@ -9,7 +9,7 @@ const minioClient = new Client({
   secretKey: process.env.MINIO_SECRET_KEY || '',
 })
 
-const BUCKET_NAME = 'widget-storage'
+const BUCKET_NAME = 'storage'
 
 export async function ensureBucketExists() {
   try {
