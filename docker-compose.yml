@@ -47,9 +47,12 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     entrypoint: >
       /bin/sh -c "
-      mc alias set minio http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD &&
-      mc mb minio/storage --ignore-existing &&
-      echo '\033[32m✓ Bucket storage created successfully\033[0m'
+        mc alias set myminio http://minio:9000 \$MINIO_ROOT_USER \$MINIO_ROOT_PASSWORD &&
+        mc mb --ignore-existing myminio/storage &&
+        echo 'Created storage bucket' &&
+        mc anonymous set myminio/storage/users/*/profile/avatar_*.webp download &&
+        echo 'Applied custom profile-image policy' &&
+        echo 'MinIO initialization complete'
       "
     restart: "no"
 
