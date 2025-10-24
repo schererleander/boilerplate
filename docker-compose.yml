@@ -45,13 +45,16 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - ./profile-avatar-policy.json:/config/profile-avatar-policy.json:ro
     entrypoint: >
       /bin/sh -c "
-        mc alias set myminio http://minio:9000 \$MINIO_ROOT_USER \$MINIO_ROOT_PASSWORD &&
+        mc alias set myminio http://minio:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD &&
         mc mb --ignore-existing myminio/storage &&
         echo 'Created storage bucket' &&
-        mc anonymous set myminio/storage/users/*/profile/avatar_*.webp download &&
-        echo 'Applied custom profile-image policy' &&
+        # Set the JSON policy directly on the bucket
+        mc anonymous set-json /config/profile-avatar-policy.json myminio/storage &&
+        echo 'Applied anonymous bucket policy' &&
         echo 'MinIO initialization complete'
       "
     restart: "no"
