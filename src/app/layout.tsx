@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Toaster } from "sonner";
 import AuthSessionProvider from "@/components/SessionProvider";
-import { Toaster } from "@/components/ui/toast";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Boilerplate",
@@ -16,16 +18,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body className="min-h-screen flex flex-col">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <AuthSessionProvider>
-            {children}
+            <AuthSessionProvider>
             <Toaster />
+            <Navbar />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
           </AuthSessionProvider>
         </ThemeProvider>
       </body>
