@@ -24,7 +24,11 @@ export async function uploadToMinio(
       'Cache-Control': 'max-age=31536000', // 1 year cache
     })
     
-    const url = `${process.env.MINIO_ENDPOINT ? `http://${process.env.MINIO_ENDPOINT}:9000` : 'http://localhost:9000'}/${BUCKET_NAME}/${key}`
+    // Construct URL using the same configuration as the client
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
+    const host = process.env.MINIO_ENDPOINT_HOST || 'localhost'
+    const port = process.env.MINIO_ENDPOINT_PORT || '9000'
+    const url = `${protocol}://${host}:${port}/${BUCKET_NAME}/${key}`
     
     return url
   } catch (error) {
