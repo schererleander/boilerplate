@@ -43,9 +43,11 @@ export default function SignInPage() {
 
       if (result?.error) {
         setError("Invalid email or password")
-      } else {
+      } else if (result?.ok) {
         router.push("/")
         router.refresh()
+      } else {
+        setError("Something went wrong. Please try again.")
       }
     } catch {
       setError("An unexpected error occurred")
