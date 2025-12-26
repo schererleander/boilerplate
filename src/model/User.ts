@@ -1,4 +1,4 @@
-import { Schema, model, models } from "mongoose";
+import { Schema, model, models, Document } from "mongoose";
 
 const UserSchema = new Schema({
   name: { type: String, required: true },
@@ -13,6 +13,14 @@ const UserSchema = new Schema({
   timestamps: true
 });
 
+UserSchema.set('toJSON', {
+  transform: (_doc: Document, ret: Record<string, unknown>) => {
+    delete ret.password;
+    delete ret.__v;
+    return ret;
+  }
+});
+
 const User = models.User || model("User", UserSchema);
 
-export default User; 
+export default User;
