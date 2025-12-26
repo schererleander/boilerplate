@@ -35,6 +35,7 @@ export const loginSchema = z.object({
     .string()
     .length(6, 'Code must be 6 digits')
     .optional()
+    .or(z.literal(''))
 })
 
 // Profile update schema (reusing name and email from registerSchema)

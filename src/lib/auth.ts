@@ -1,10 +1,10 @@
 import { type NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
-import { authenticator } from "otplib"
 import dbConnect from "./mongodb"
 import User from "@/model/User"
 import { loginSchema } from "./validation"
+import { verifyTwoFactor } from "./auth-helpers"
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -32,16 +32,10 @@ export const authOptions: NextAuthOptions = {
             const isPasswordValid = await bcrypt.compare(password, user.password)
             if (!isPasswordValid) return null
 
-            if (user.twoFactorEnabled) {
-              if (!twoFactorCode) {
-                throw new Error("2FA_REQUIRED")
-              }
-
-              const isValid = authenticator.check(twoFactorCode, user.twoFactorSecret)
-              if (!isValid) {
-                throw new Error("Invalid 2FA Code")
-              }
-            }
+            verifyTwoFactor({
+              twoFactorEnabled: user.twoFactorEnabled,
+              twoFactorSecret: user.twoFactorSecret
+            }, twoFactorCode)
 
             return {
                 id: user._id.toString(),
