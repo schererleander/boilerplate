@@ -1,12 +1,9 @@
-import NextAuth, { type NextAuthOptions } from "next-auth"
+import { type NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { MongoClient } from "mongodb"
 import bcrypt from "bcryptjs"
 import dbConnect from "./mongodb"
 import User from "@/model/User"
 import { loginSchema } from "./validation"
-
-const client = new MongoClient(process.env.MONGODB_URI!)
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -17,30 +14,20 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null
-        }
+        if (!credentials?.email || !credentials?.password) return null
 
-        // Validate and sanitize with Zod
         const result = loginSchema.safeParse(credentials)
-        
-        if (!result.success) {
-          return null
-        }
+        if (!result.success) return null
 
         const { email, password } = result.data
 
         await dbConnect()
         
         const user = await User.findOne({ email })
-        if (!user) {
-          return null
-        }
+        if (!user) return null
 
         const isPasswordValid = await bcrypt.compare(password, user.password)
-        if (!isPasswordValid) {
-          return null
-        }
+        if (!isPasswordValid) return null
 
         return {
           id: user._id.toString(),
@@ -51,21 +38,15 @@ export const authOptions: NextAuthOptions = {
       }
     })
   ],
-  session: {
-    strategy: "jwt" as const
-  },
+  session: { strategy: "jwt" },
   callbacks: {
-    async jwt({ token, user }: { token: any; user: any }) {
-      if (user) {
-        token.id = user.id
-      }
+    async jwt({ token, user }) {
+      if (user) token.id = user.id
       return token
     },
-    async session({ session, token }: { session: any; token: any }) {
+    async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string
-        
-        // Fetch latest user data from database to get current profile image
         await dbConnect()
         const currentUser = await User.findById(token.id)
         if (currentUser) {
@@ -77,9 +58,5 @@ export const authOptions: NextAuthOptions = {
       return session
     },
   },
-  pages: {
-    signIn: "/login",
-  },
+  pages: { signIn: "/login" },
 }
-
-export default NextAuth(authOptions) 
