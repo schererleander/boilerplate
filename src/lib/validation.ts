@@ -30,7 +30,11 @@ export const loginSchema = z.object({
     .max(254, 'Email must be at most 254 characters'),
   password: z
     .string()
-    .max(128, 'Password must be at most 128 characters')
+    .max(128, 'Password must be at most 128 characters'),
+  twoFactorCode: z
+    .string()
+    .length(6, 'Code must be 6 digits')
+    .optional()
 })
 
 // Profile update schema (reusing name and email from registerSchema)

@@ -1,21 +1,31 @@
-import { redirect } from "next/navigation"
 import { getServerSession } from "next-auth"
-
-import Navbar from "@/components/Navbar"
+import { redirect } from "next/navigation"
+import dbConnect from "@/lib/mongodb"
+import User from "@/model/User"
 import { authOptions } from "@/lib/auth"
-import { SettingsForm } from "@/app/settings/settings-form"
+import SettingsContent from "./settings-content"
 
 export default async function SettingsPage() {
   const session = await getServerSession(authOptions)
 
-  if (!session?.user) {
+  if (!session?.user?.email) {
     redirect("/login")
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <SettingsForm user={session.user} />
-    </div>
-  )
+  await dbConnect()
+  const user = await User.findOne({ email: session.user.email }).lean() as any
+
+  if (!user) {
+    redirect("/login")
+  }
+
+  // Sanitize user object for client component
+  const initialUser = {
+    name: user.name,
+    email: user.email,
+    image: user.profileImage?.url || null,
+    twoFactorEnabled: !!user.twoFactorEnabled,
+  }
+
+  return <SettingsContent initialUser={initialUser} />
 }

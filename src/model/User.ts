@@ -8,7 +8,9 @@ const UserSchema = new Schema({
     url: { type: String },
     key: { type: String },
     uploadedAt: { type: Date } 
-  }
+  },
+  twoFactorEnabled: { type: Boolean, default: false },
+  twoFactorSecret: { type: String }
 }, {
   timestamps: true
 });
@@ -16,6 +18,7 @@ const UserSchema = new Schema({
 UserSchema.set('toJSON', {
   transform: (_doc: Document, ret: Record<string, unknown>) => {
     delete ret.password;
+    delete ret.twoFactorSecret;
     delete ret.__v;
     return ret;
   }
