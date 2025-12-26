@@ -17,22 +17,6 @@ export async function ensureBucketExists() {
     if (!exists) {
       await minioClient.makeBucket(BUCKET_NAME, 'us-east-1')
       console.log(`Created bucket: ${BUCKET_NAME}`)
-      
-      // Set bucket policy for public read access to profile images
-      const policy = {
-        Version: '2012-10-17',
-        Statement: [
-          {
-            Effect: 'Allow',
-            Principal: { AWS: ['*'] },
-            Action: ['s3:GetObject'],
-            Resource: [`arn:aws:s3:::${BUCKET_NAME}/users/*/profile/*`]
-          }
-        ]
-      }
-      
-      await minioClient.setBucketPolicy(BUCKET_NAME, JSON.stringify(policy))
-      console.log(`Set bucket policy for ${BUCKET_NAME}`)
     }
   } catch (error) {
     console.error('Error ensuring bucket exists:', error)
@@ -96,4 +80,4 @@ export async function getFileInfo(key: string) {
   }
 }
 
-export default minioClient 
+export default minioClient
