@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { Eye, EyeOff, Loader2, User, Mail, Lock, Save, Camera, Upload, Trash2 } from "lucide-react"
+import { Eye, EyeOff, Loader2, User, Lock, Save, Camera, Upload, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import Navbar from "@/components/Navbar"
-import { updateProfileSchema, updatePasswordSchema, type UpdateProfileInput, type UpdatePasswordInput } from "@/lib/validation"
+import { updateProfileSchema, updatePasswordSchema, type UpdateProfileInput } from "@/lib/validation"
 
 // Form schema for password change with confirmation
 const passwordChangeSchema = updatePasswordSchema.extend({
@@ -100,7 +100,7 @@ export default function SettingsPage() {
 
       toast.success("Profile updated successfully!")
       
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred")
     } finally {
       setIsLoading(false)
@@ -130,7 +130,7 @@ export default function SettingsPage() {
       toast.success("Password updated successfully!")
       passwordForm.reset()
       
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred")
     } finally {
       setIsLoading(false)
@@ -167,7 +167,7 @@ export default function SettingsPage() {
         image: result.profileImage.url
       })
 
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsImageLoading(false)
@@ -201,7 +201,7 @@ export default function SettingsPage() {
         image: null
       })
 
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsImageLoading(false)
