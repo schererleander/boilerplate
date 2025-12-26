@@ -4,17 +4,19 @@ import dbConnect from "@/lib/mongodb"
 import User from "@/model/User"
 import { registerSchema, formatZodError } from "@/lib/validation"
 
+// Define interface for MongoDB duplicate key error
+interface MongoError extends Error {
+  code?: number;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-  
     const result = registerSchema.safeParse(body)
     
     if (!result.success) {
-      const errors = formatZodError(result.error)
-      
       return NextResponse.json(
-        { error: "Validation failed", details: errors },
+        { error: "Validation failed", details: formatZodError(result.error) },
         { status: 400 }
       )
     }
@@ -22,14 +24,6 @@ export async function POST(request: NextRequest) {
     const { name, email, password } = result.data
 
     await dbConnect()
-
-    const existingUser = await User.findOne({ email })
-    if (existingUser) {
-      return NextResponse.json(
-        { error: "User already exists" },
-        { status: 409 }
-      )
-    }
 
     const hashedPassword = await bcrypt.hash(password, 12)
 
@@ -44,18 +38,17 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
-    console.error("Registration error:", error)
-    
-    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
+    const mongoError = error as MongoError;
+    if (mongoError.code === 11000) {
       return NextResponse.json(
         { error: "User already exists" },
         { status: 409 }
       )
     }
-
+    console.error("Registration error:", error)
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
     )
   }
-} 
+}
