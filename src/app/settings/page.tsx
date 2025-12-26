@@ -1,22 +1,21 @@
 import { getServerSession } from "next-auth"
-import { redirect } from "next/navigation"
-import dbConnect from "@/lib/mongodb"
-import User from "@/model/User"
 import { authOptions } from "@/lib/auth"
-import SettingsContent from "./settings-content"
+import { SettingsForm } from "./settings-form"
+import { getUserProfile } from "@/services/user.service"
 
 export default async function SettingsPage() {
   const session = await getServerSession(authOptions)
-
+  
   if (!session?.user?.email) {
-    redirect("/login")
+    // This case should be handled by middleware, but for type safety:
+    return null 
   }
 
-  await dbConnect()
-  const user = await User.findOne({ email: session.user.email }).lean() as any
+  const user = await getUserProfile(session.user.email)
 
   if (!user) {
-    redirect("/login")
+    // This case suggests a data inconsistency (session exists but user not in DB)
+    return null
   }
 
   // Sanitize user object for client component
@@ -27,5 +26,5 @@ export default async function SettingsPage() {
     twoFactorEnabled: !!user.twoFactorEnabled,
   }
 
-  return <SettingsContent initialUser={initialUser} />
+  return <SettingsForm user={initialUser} />
 }

@@ -97,7 +97,7 @@ export function ProfileImage({ user, update }: ProfileImageProps) {
         </CardTitle>
         <CardDescription>
           Upload or update your profile picture
-        </CardDescription>
+				</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-center space-x-6">
@@ -136,7 +136,6 @@ export function ProfileImage({ user, update }: ProfileImageProps) {
             
             <p className="text-xs text-muted-foreground">
               Supported formats: JPEG, PNG, WebP, GIF. Maximum size: 10MB.
-              Images will be resized to 400x400 pixels.
             </p>
             
             <input

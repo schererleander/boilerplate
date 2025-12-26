@@ -16,7 +16,6 @@ export function PasswordForm() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<PasswordChangeInput>({
     resolver: zodResolver(passwordChangeSchema),
@@ -28,8 +27,6 @@ export function PasswordForm() {
   })
 
   const onSubmit = async (data: PasswordChangeInput) => {
-    setIsLoading(true)
-
     try {
       const response = await fetch("/api/user/password", {
         method: "PATCH",
@@ -51,8 +48,6 @@ export function PasswordForm() {
       form.reset()
     } catch {
       toast.error("An unexpected error occurred")
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -169,8 +164,8 @@ export function PasswordForm() {
             <div className="text-xs text-muted-foreground">
               Password must contain at least 8 characters with uppercase, lowercase, and a number.
             </div>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               <Save className="mr-2 h-4 w-4" />
               Update Password
             </Button>

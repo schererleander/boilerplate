@@ -5,12 +5,14 @@ import { Separator } from "@/components/ui/separator"
 import { ProfileForm } from "./profile-form"
 import { ProfileImage } from "./profile-image"
 import { PasswordForm } from "./password-form"
+import { TwoFactorForm } from "./two-factor-form"
 
 interface SettingsFormProps {
   user: {
     name?: string | null
     email?: string | null
     image?: string | null
+    twoFactorEnabled: boolean
   }
 }
 
@@ -30,6 +32,8 @@ export function SettingsForm({ user }: SettingsFormProps) {
         <ProfileForm user={user} update={update} />
         <Separator />
         <ProfileImage user={user} update={update} />
+        <Separator />
+        <TwoFactorForm twoFactorEnabled={user.twoFactorEnabled} />
         <Separator />
         <PasswordForm />
       </div>
