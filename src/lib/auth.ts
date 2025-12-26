@@ -21,19 +21,24 @@ export const authOptions: NextAuthOptions = {
 
         const { email, password } = result.data
 
-        await dbConnect()
-        
-        const user = await User.findOne({ email })
-        if (!user) return null
+        try {
+            await dbConnect()
+            
+            const user = await User.findOne({ email })
+            if (!user) return null
 
-        const isPasswordValid = await bcrypt.compare(password, user.password)
-        if (!isPasswordValid) return null
+            const isPasswordValid = await bcrypt.compare(password, user.password)
+            if (!isPasswordValid) return null
 
-        return {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-          image: user.profileImage?.url || null,
+            return {
+                id: user._id.toString(),
+                email: user.email,
+                name: user.name,
+                image: user.profileImage?.url || null,
+            }
+        } catch (error) {
+            console.error("Auth error:", error)
+            return null
         }
       }
     })
