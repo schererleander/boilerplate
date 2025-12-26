@@ -5,19 +5,19 @@ import User from "@/model/User"
 import { authOptions } from "@/lib/auth"
 import { updateProfileSchema } from "@/lib/validation"
 
+// Define interface for MongoDB duplicate key error
+interface MongoError extends Error {
+  code?: number;
+}
+
 export async function PATCH(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const body = await request.json()
-    
     const result = updateProfileSchema.safeParse(body)
     
     if (!result.success) {
@@ -28,34 +28,16 @@ export async function PATCH(request: NextRequest) {
     }
 
     const { name, email } = result.data
-
     await dbConnect()
 
-    // Check if email is already taken by another user
-    const existingUser = await User.findOne({ 
-      email, 
-      _id: { $ne: session.user.id } 
-    })
-    
-    if (existingUser) {
-      return NextResponse.json(
-        { error: "Email is already in use" },
-        { status: 409 }
-      )
-    }
-
-    // Update user
     const updatedUser = await User.findByIdAndUpdate(
       session.user.id,
       { name, email },
-      { new: true }
+      { new: true, runValidators: true }
     )
 
     if (!updatedUser) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
     return NextResponse.json({
@@ -68,11 +50,17 @@ export async function PATCH(request: NextRequest) {
     })
 
   } catch (error) {
+    const mongoError = error as MongoError;
+    if (mongoError.code === 11000) {
+      return NextResponse.json(
+        { error: "Email is already in use" },
+        { status: 409 }
+      )
+    }
     console.error("Profile update error:", error)
-    
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
     )
   }
-} 
+}
