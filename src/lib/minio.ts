@@ -4,25 +4,12 @@ import { Readable } from 'stream'
 const minioClient = new Client({
   endPoint: process.env.MINIO_ENDPOINT_HOST || 'localhost',
   port: parseInt(process.env.MINIO_ENDPOINT_PORT || '9000', 10),
-  useSSL: false, //INFO: Set to true if using HTTPS
+  useSSL: process.env.NODE_ENV === 'production', 
   accessKey: process.env.MINIO_ACCESS_KEY || '',
   secretKey: process.env.MINIO_SECRET_KEY || '',
 })
 
 const BUCKET_NAME = 'storage'
-
-export async function ensureBucketExists() {
-  try {
-    const exists = await minioClient.bucketExists(BUCKET_NAME)
-    if (!exists) {
-      await minioClient.makeBucket(BUCKET_NAME, 'us-east-1')
-      console.log(`Created bucket: ${BUCKET_NAME}`)
-    }
-  } catch (error) {
-    console.error('Error ensuring bucket exists:', error)
-    throw error
-  }
-}
 
 export async function uploadToMinio(
   key: string, 
@@ -30,8 +17,6 @@ export async function uploadToMinio(
   contentType: string
 ): Promise<string> {
   try {
-    await ensureBucketExists()
-    
     const stream = Readable.from(buffer)
     
     await minioClient.putObject(BUCKET_NAME, key, stream, buffer.length, {
@@ -63,7 +48,6 @@ export async function getPresignedUploadUrl(
   expiresIn: number = 3600
 ): Promise<string> {
   try {
-    await ensureBucketExists()
     return await minioClient.presignedPutObject(BUCKET_NAME, key, expiresIn)
   } catch (error) {
     console.error('Error generating presigned URL:', error)
