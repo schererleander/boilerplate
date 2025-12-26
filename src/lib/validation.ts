@@ -45,11 +45,19 @@ export const updatePasswordSchema = z.object({
   newPassword: registerSchema.shape.password,
 })
 
+export const passwordChangeSchema = updatePasswordSchema.extend({
+  confirmPassword: z.string()
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+})
+
 // Type inference from schemas
 export type RegisterInput = z.infer<typeof registerSchema>
 export type LoginInput = z.infer<typeof loginSchema>
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>
 export type UpdatePasswordInput = z.infer<typeof updatePasswordSchema>
+export type PasswordChangeInput = z.infer<typeof passwordChangeSchema>
 
 export const emailSchema = z.object({
   email: z
